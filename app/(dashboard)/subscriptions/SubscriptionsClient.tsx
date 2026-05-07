@@ -20,7 +20,7 @@ export default function SubscriptionsClient({
   const [editSub, setEditSub] = useState<SubscriptionWithCategory | null>(null);
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("monthly_cost");
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>("active");
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>("all");
 
   const filtered = useMemo(() => {
     return subscriptions
