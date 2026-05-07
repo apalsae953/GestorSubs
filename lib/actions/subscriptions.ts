@@ -72,6 +72,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     optimizationCandidates: [],
     spendingByCategory: [],
     monthlyHistory: [],
+    allSubscriptions: [],
   };
 
   if (!user) return empty;

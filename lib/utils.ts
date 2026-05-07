@@ -28,7 +28,11 @@ export function formatMonth(dateStr: string): string {
 }
 
 export function daysUntil(dateStr: string): number {
-  return differenceInDays(new Date(dateStr), new Date());
+  const [y, m, d] = dateStr.split("-").map(Number);
+  const target = new Date(y, m - 1, d);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return differenceInDays(target, today);
 }
 
 export function toMonthly(price: number, cycle: BillingCycle): number {
