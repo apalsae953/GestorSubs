@@ -35,7 +35,7 @@ export default function Sidebar({ profile }: { profile: Profile | null }) {
   }
 
   return (
-    <aside className="w-60 flex flex-col border-r border-white/5 bg-noir-900/80 backdrop-blur-sm flex-shrink-0">
+    <aside className="w-60 hidden md:flex flex-col border-r border-white/5 bg-noir-900/80 backdrop-blur-sm flex-shrink-0">
       {/* Logo */}
       <div className="px-5 py-6">
         <Link href="/dashboard" className="flex items-center gap-2.5 group">
