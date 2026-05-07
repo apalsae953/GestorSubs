@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-import { CheckCircle2, Plus, Zap } from "lucide-react";
+import { CheckCircle2, Plus, Zap, Inbox } from "lucide-react";
 import { toast } from "sonner";
 import { logUsageManual, unlogUsageManual } from "@/lib/actions/usage";
 import { formatCurrency, generateInitials } from "@/lib/utils";
@@ -51,7 +51,7 @@ export default function CheckinClient({ subscriptions, today }: CheckinClientPro
         if (res.alreadyLogged) {
           toast.success(`${sub.name} ya estaba registrada hoy`);
         } else {
-          toast.success(`✓ ${sub.name} marcada como usada`);
+          toast.success(`${sub.name} marcada como usada`);
         }
       }
     } catch {
@@ -267,7 +267,7 @@ function EmptyState({ onAdd, onPopular }: { onAdd: () => void; onPopular: () => 
       animate={{ opacity: 1 }}
       className="glass-card flex flex-col items-center justify-center py-16 text-center mb-6"
     >
-      <div className="text-4xl mb-4">📭</div>
+      <Inbox className="w-10 h-10 text-noir-600 mb-4" />
       <p className="text-sm font-medium text-white mb-1">Sin suscripciones todavía</p>
       <p className="text-xs text-noir-500 mb-6 max-w-[220px]">
         Añade tus servicios para hacer check-in cada día

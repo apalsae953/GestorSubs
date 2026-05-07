@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, Plus, Search } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toast } from "sonner";
 import { createSubscription } from "@/lib/actions/subscriptions";
 import { POPULAR_SERVICES, SERVICE_CATEGORIES } from "@/lib/popular-services";
@@ -169,7 +170,7 @@ export default function PopularServicesModal({ open, onClose }: PopularServicesM
                                       : "bg-noir-800/60 border-white/6 hover:border-white/15"
                                   }`}
                     >
-                      <span className="text-xl flex-shrink-0">{svc.emoji}</span>
+                      <FontAwesomeIcon icon={svc.icon} className="w-5 h-5 text-violet-400 flex-shrink-0" />
                       <div className="min-w-0">
                         <p className="text-xs font-semibold text-white truncate">{svc.name}</p>
                         <p className="text-xs text-noir-500">

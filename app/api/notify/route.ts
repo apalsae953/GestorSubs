@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
             <table cellpadding="0" cellspacing="0">
               <tr>
                 <td style="background:rgba(255,255,255,0.15);border-radius:10px;padding:8px 10px;margin-right:12px;">
-                  <span style="font-size:18px;">📡</span>
+                  <span style="font-size:18px;">&#x25C9;</span>
                 </td>
                 <td style="padding-left:12px;">
                   <p style="margin:0;color:#fff;font-size:20px;font-weight:700;letter-spacing:-0.3px;">SubScout</p>
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
                     <tr>
                       <td colspan="2">
                         <p style="margin:0 0 4px;color:#636366;font-size:12px;">Fecha de renovación</p>
-                        <p style="margin:0;color:#fff;font-size:15px;font-weight:500;">📅 ${renewalDate}</p>
+                        <p style="margin:0;color:#fff;font-size:15px;font-weight:500;">${renewalDate}</p>
                       </td>
                     </tr>
                   </table>
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
     const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL ?? "SubScout <noreply@resend.dev>",
       to: profile.email,
-      subject: `🔔 ${sub.name} se renueva el ${renewalDate} — ${sub.price} ${sub.currency}`,
+      subject: `${sub.name} se renueva el ${renewalDate} — ${sub.price} ${sub.currency}`,
       html,
     });
 

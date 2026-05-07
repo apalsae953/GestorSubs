@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, Plus, Zap, Search, Check } from "lucide-react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toast } from "sonner";
 import { createSubscription } from "@/lib/actions/subscriptions";
 import { getCategories } from "@/lib/actions/subscriptions";
@@ -284,7 +285,7 @@ export default function AddSubscriptionForm({
                           className="flex items-center gap-3 p-3 rounded-xl border border-white/6
                                      bg-noir-800/60 hover:border-white/15 transition-all group"
                         >
-                          <span className="text-xl flex-shrink-0">{svc.emoji}</span>
+                          <FontAwesomeIcon icon={svc.icon} className="w-5 h-5 text-violet-400 flex-shrink-0" />
                           <div className="min-w-0 flex-1">
                             <p className="text-xs font-semibold text-white truncate">{svc.name}</p>
                             <p className="text-xs text-noir-500">

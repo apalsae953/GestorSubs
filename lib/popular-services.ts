@@ -1,3 +1,13 @@
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import {
+  faFilm, faTv, faBox, faChessRook, faAppleWhole, faPlay,
+  faToriiGate, faSatelliteDish, faMusic, faHeadphones, faWater,
+  faGamepad, faCircle,  faTrophy,
+  faRobot, faBrain, faPalette, faMagnifyingGlass,
+  faPenToSquare, faBriefcase, faMask, faCloud,
+  faCircleDot, faFolderOpen,
+} from "@fortawesome/free-solid-svg-icons";
+
 export interface PopularService {
   name: string;
   url: string;
@@ -6,7 +16,7 @@ export interface PopularService {
   currency: "EUR" | "USD";
   billing_cycle: "monthly" | "yearly";
   category: string;
-  emoji: string;
+  icon: IconDefinition;
   description: string;
 }
 
@@ -20,7 +30,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Streaming",
-    emoji: "🎬",
+    icon: faFilm,
     description: "Plan Estándar con anuncios",
   },
   {
@@ -31,7 +41,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Streaming",
-    emoji: "📺",
+    icon: faTv,
     description: "Series y películas HBO",
   },
   {
@@ -42,7 +52,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Streaming",
-    emoji: "📦",
+    icon: faBox,
     description: "Incluido con Amazon Prime",
   },
   {
@@ -53,7 +63,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Streaming",
-    emoji: "🏰",
+    icon: faChessRook,
     description: "Disney, Marvel, Star Wars, Pixar",
   },
   {
@@ -64,7 +74,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Streaming",
-    emoji: "🍎",
+    icon: faAppleWhole,
     description: "Series y películas originales Apple",
   },
   {
@@ -75,7 +85,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Streaming",
-    emoji: "▶️",
+    icon: faPlay,
     description: "Sin anuncios + YouTube Music",
   },
   {
@@ -86,7 +96,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Streaming",
-    emoji: "⛩️",
+    icon: faToriiGate,
     description: "Anime en streaming",
   },
   {
@@ -97,7 +107,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Streaming",
-    emoji: "📡",
+    icon: faSatelliteDish,
     description: "Plataforma de Telefónica",
   },
 
@@ -110,7 +120,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Música",
-    emoji: "🎵",
+    icon: faMusic,
     description: "Música en streaming",
   },
   {
@@ -121,7 +131,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Música",
-    emoji: "🎶",
+    icon: faHeadphones,
     description: "Música de Apple",
   },
   {
@@ -132,7 +142,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Música",
-    emoji: "🌊",
+    icon: faWater,
     description: "Música HiFi y sin pérdidas",
   },
 
@@ -145,7 +155,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Gaming",
-    emoji: "🎮",
+    icon: faGamepad,
     description: "Juegos online + catálogo PS",
   },
   {
@@ -156,7 +166,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Gaming",
-    emoji: "🟢",
+    icon: faCircle,
     description: "Catálogo de juegos Xbox + PC",
   },
   {
@@ -167,7 +177,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Gaming",
-    emoji: "🕹️",
+    icon: faGamepad,
     description: "Juegos online Nintendo",
   },
   {
@@ -178,7 +188,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Gaming",
-    emoji: "🏆",
+    icon: faTrophy,
     description: "Catálogo EA + acceso anticipado",
   },
 
@@ -191,7 +201,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "USD",
     billing_cycle: "monthly",
     category: "Software",
-    emoji: "🤖",
+    icon: faRobot,
     description: "GPT-4o + acceso prioritario",
   },
   {
@@ -202,7 +212,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "USD",
     billing_cycle: "monthly",
     category: "Software",
-    emoji: "🧠",
+    icon: faBrain,
     description: "Claude Sonnet + Opus ilimitado",
   },
   {
@@ -213,7 +223,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "USD",
     billing_cycle: "monthly",
     category: "Software",
-    emoji: "🎨",
+    icon: faPalette,
     description: "Generación de imágenes con IA",
   },
   {
@@ -224,7 +234,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "USD",
     billing_cycle: "monthly",
     category: "Software",
-    emoji: "🔍",
+    icon: faMagnifyingGlass,
     description: "Buscador con IA avanzada",
   },
 
@@ -237,7 +247,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "USD",
     billing_cycle: "monthly",
     category: "Productividad",
-    emoji: "📝",
+    icon: faPenToSquare,
     description: "Notas, bases de datos, wikis",
   },
   {
@@ -248,7 +258,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Productividad",
-    emoji: "💼",
+    icon: faBriefcase,
     description: "Office + 1TB OneDrive",
   },
   {
@@ -259,7 +269,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Software",
-    emoji: "🎭",
+    icon: faMask,
     description: "Photoshop, Illustrator, Premiere…",
   },
 
@@ -272,7 +282,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Nube",
-    emoji: "☁️",
+    icon: faCloud,
     description: "50 GB almacenamiento Apple",
   },
   {
@@ -283,7 +293,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Nube",
-    emoji: "🔵",
+    icon: faCircleDot,
     description: "100 GB almacenamiento Google",
   },
   {
@@ -294,7 +304,7 @@ export const POPULAR_SERVICES: PopularService[] = [
     currency: "EUR",
     billing_cycle: "monthly",
     category: "Nube",
-    emoji: "📂",
+    icon: faFolderOpen,
     description: "2 TB almacenamiento en nube",
   },
 ];
