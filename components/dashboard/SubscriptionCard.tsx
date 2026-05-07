@@ -12,6 +12,9 @@ import {
   ExternalLink,
   Calendar,
   Activity,
+  PauseCircle,
+  PlayCircle,
+  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -22,7 +25,7 @@ import {
   cycleLabel,
   generateInitials,
 } from "@/lib/utils";
-import { deleteSubscription, toggleUsedThisMonth } from "@/lib/actions/subscriptions";
+import { deleteSubscription, toggleUsedThisMonth, updateSubscriptionStatus } from "@/lib/actions/subscriptions";
 import type { SubscriptionWithCategory } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +41,7 @@ export default function SubscriptionCard({
   const [showMenu, setShowMenu] = useState(false);
   const [logoError, setLogoError] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
 
   const urgency = getBillingUrgency(sub.next_billing_date);
   const days = daysUntil(sub.next_billing_date);
@@ -65,6 +69,19 @@ export default function SubscriptionCard({
     );
   }
 
+  async function handleStatusChange(status: "active" | "paused" | "cancelled") {
+    setStatusLoading(true);
+    try {
+      await updateSubscriptionStatus(sub.id, status);
+      const labels = { active: "reactivada", paused: "pausada", cancelled: "cancelada" };
+      toast.success(`${sub.name} ${labels[status]}`);
+    } catch {
+      toast.error("Error al cambiar el estado");
+    } finally {
+      setStatusLoading(false);
+    }
+  }
+
   return (
     <motion.div
       layout
@@ -75,8 +92,10 @@ export default function SubscriptionCard({
       transition={{ duration: 0.2 }}
       className={cn(
         "glass-card p-5 relative group cursor-default",
-        urgency === "urgent" && "ring-1 ring-rose-500/30",
-        urgency === "soon" && "ring-1 ring-amber-500/20"
+        urgency === "urgent" && sub.status === "active" && "ring-1 ring-rose-500/30",
+        urgency === "soon" && sub.status === "active" && "ring-1 ring-amber-500/20",
+        sub.status === "paused" && "opacity-60",
+        sub.status === "cancelled" && "opacity-40"
       )}
     >
       {/* Header */}
@@ -117,15 +136,20 @@ export default function SubscriptionCard({
               </a>
             )}
           </div>
-          {sub.category_name && (
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span
-                className="category-dot"
-                style={{ background: sub.category_color ?? "#6b7280" }}
-              />
-              <span className="text-xs text-noir-500">{sub.category_name}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-1.5 mt-0.5">
+            {sub.category_name && (
+              <>
+                <span className="category-dot" style={{ background: sub.category_color ?? "#6b7280" }} />
+                <span className="text-xs text-noir-500">{sub.category_name}</span>
+              </>
+            )}
+            {sub.status === "paused" && (
+              <span className="text-[10px] font-semibold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-md">PAUSADA</span>
+            )}
+            {sub.status === "cancelled" && (
+              <span className="text-[10px] font-semibold text-noir-500 bg-white/5 px-1.5 py-0.5 rounded-md">CANCELADA</span>
+            )}
+          </div>
         </div>
 
         {/* Menu */}
@@ -164,6 +188,34 @@ export default function SubscriptionCard({
                   )}
                   {sub.used_this_month ? "No usada" : "Usada este mes"}
                 </button>
+                <div className="h-px bg-white/5 my-1" />
+                {sub.status !== "paused" && sub.status !== "cancelled" && (
+                  <button
+                    onClick={() => { handleStatusChange("paused"); setShowMenu(false); }}
+                    disabled={statusLoading}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-amber-400 hover:text-amber-300 hover:bg-amber-500/10 transition-colors"
+                  >
+                    <PauseCircle className="w-3.5 h-3.5" /> Pausar
+                  </button>
+                )}
+                {sub.status !== "active" && (
+                  <button
+                    onClick={() => { handleStatusChange("active"); setShowMenu(false); }}
+                    disabled={statusLoading}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-colors"
+                  >
+                    <PlayCircle className="w-3.5 h-3.5" /> Reactivar
+                  </button>
+                )}
+                {sub.status !== "cancelled" && (
+                  <button
+                    onClick={() => { handleStatusChange("cancelled"); setShowMenu(false); }}
+                    disabled={statusLoading}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-noir-400 hover:text-white hover:bg-white/5 transition-colors"
+                  >
+                    <XCircle className="w-3.5 h-3.5" /> Cancelar suscripción
+                  </button>
+                )}
                 <div className="h-px bg-white/5 my-1" />
                 <button
                   onClick={() => { handleDelete(); setShowMenu(false); }}

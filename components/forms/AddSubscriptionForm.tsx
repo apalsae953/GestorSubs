@@ -87,12 +87,25 @@ export default function AddSubscriptionForm({
     }
   }, [initialValues]);
 
-  // Reset to popular tab when drawer opens fresh (no initialValues)
+  // Reset form and tabs when opening for a new subscription
   useEffect(() => {
     if (open && !initialValues) {
       setTab("popular");
       setSearch("");
       setActiveCategory("Todos");
+      reset({
+        name: "",
+        url: "",
+        price: undefined as unknown as number,
+        currency: "EUR",
+        billing_cycle: "monthly",
+        next_billing_date: format(addDays(new Date(), 30), "yyyy-MM-dd"),
+        category_id: "",
+        used_this_month: false,
+        notify_days_before: 3,
+        description: "",
+        logo_url: "",
+      });
     }
   }, [open]);
 

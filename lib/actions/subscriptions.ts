@@ -9,7 +9,8 @@ import type {
 } from "@/types";
 import { toMonthly } from "@/lib/utils";
 import { getUsageWarning } from "@/lib/usage-warnings";
-import { format, subMonths, startOfMonth } from "date-fns";
+import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
+import type { UsageLog } from "@/types";
 
 export async function getSubscriptions(): Promise<SubscriptionWithCategory[]> {
   const supabase = await createClient();
@@ -105,16 +106,15 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   );
 
   // Monthly history (last 6 months)
-  // Logic: Sum the monthly_cost of all subscriptions that existed at each point in time.
   const monthlyHistory = Array.from({ length: 6 }, (_, i) => {
-    const date = subMonths(startOfMonth(new Date()), 5 - i);
+    const monthStart = subMonths(startOfMonth(new Date()), 5 - i);
+    const monthEnd = endOfMonth(monthStart);
     const monthTotal = active
-      .filter(s => new Date(s.created_at) <= date)
+      .filter(s => new Date(s.created_at) <= monthEnd)
       .reduce((acc, s) => acc + s.monthly_cost, 0);
-    
     return {
-      month: format(date, "MMM yy"),
-      total: monthTotal,
+      month: format(monthStart, "MMM yy"),
+      total: Math.round(monthTotal * 100) / 100,
     };
   });
 
@@ -133,7 +133,42 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     optimizationCandidates,
     spendingByCategory,
     monthlyHistory,
+    allSubscriptions: subs,
   };
+}
+
+export async function getMonthUsageLogs(): Promise<UsageLog[]> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const from = format(startOfMonth(new Date()), "yyyy-MM-dd");
+  const { data } = await supabase
+    .from("usage_logs")
+    .select("sub_id, used_at")
+    .eq("user_id", user.id)
+    .gte("used_at", `${from}T00:00:00Z`);
+
+  return (data ?? []) as UsageLog[];
+}
+
+export async function updateSubscriptionStatus(
+  id: string,
+  status: "active" | "paused" | "cancelled"
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { error } = await supabase
+    .from("subscriptions")
+    .update({ status })
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/dashboard");
+  revalidatePath("/subscriptions");
 }
 
 export async function createSubscription(
