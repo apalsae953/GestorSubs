@@ -19,11 +19,15 @@ export async function getSubscriptions(): Promise<SubscriptionWithCategory[]> {
   } = await supabase.auth.getUser();
   if (!user) return [];
 
+  // Query base table to include all statuses (active, paused, cancelled)
   const { data: subs, error } = await supabase
-    .from("subscriptions_monthly_cost")
-    .select("*")
+    .from("subscriptions")
+    .select(`
+      *,
+      category:categories(name, color, icon)
+    `)
     .eq("user_id", user.id)
-    .order("monthly_cost", { ascending: false });
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("getSubscriptions error:", error);
@@ -37,23 +41,35 @@ export async function getSubscriptions(): Promise<SubscriptionWithCategory[]> {
     .eq("user_id", user.id);
 
   const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfMonthDate = startOfMonth(now);
 
   const usageStats = (usageLogs ?? []).reduce((acc, log) => {
     const id = log.sub_id;
     if (!acc[id]) acc[id] = { total: 0, month: 0 };
     acc[id].total++;
-    if (new Date(log.used_at) >= startOfMonth) {
+    if (new Date(log.used_at) >= startOfMonthDate) {
       acc[id].month++;
     }
     return acc;
   }, {} as Record<string, { total: number; month: number }>);
 
-  return (subs as SubscriptionWithCategory[]).map(s => ({
-    ...s,
-    usage_count: usageStats[s.id]?.total ?? 0,
-    usage_count_month: usageStats[s.id]?.month ?? 0,
-  }));
+  return (subs as any[]).map(s => {
+    // Manual calculation of monthly cost (previously done in view)
+    let monthly_cost = s.price;
+    if (s.billing_cycle === 'weekly') monthly_cost = s.price * 4.33;
+    if (s.billing_cycle === 'quarterly') monthly_cost = s.price / 3;
+    if (s.billing_cycle === 'yearly') monthly_cost = s.price / 12;
+
+    return {
+      ...s,
+      monthly_cost: Math.round(monthly_cost * 100) / 100,
+      category_name: s.category?.name ?? "Otro",
+      category_color: s.category?.color ?? "#6b7280",
+      category_icon: s.category?.icon ?? "MoreHorizontal",
+      usage_count: usageStats[s.id]?.total ?? 0,
+      usage_count_month: usageStats[s.id]?.month ?? 0,
+    };
+  });
 }
 
 export async function getDashboardStats(): Promise<DashboardStats> {
