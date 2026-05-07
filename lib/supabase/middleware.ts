@@ -13,14 +13,22 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: any) {
-          request.cookies.set({ name, value, ...options });
-          supabaseResponse = NextResponse.next({ request });
-          supabaseResponse.cookies.set({ name, value, ...options });
+          request.cookies.set(name, value);
+          const newResponse = NextResponse.next({ request });
+          supabaseResponse.cookies.getAll().forEach((cookie) => {
+            newResponse.cookies.set(cookie.name, cookie.value);
+          });
+          newResponse.cookies.set({ name, value, ...options });
+          supabaseResponse = newResponse;
         },
         remove(name: string, options: any) {
-          request.cookies.set({ name, value: "", ...options });
-          supabaseResponse = NextResponse.next({ request });
-          supabaseResponse.cookies.set({ name, value: "", ...options });
+          request.cookies.set(name, "");
+          const newResponse = NextResponse.next({ request });
+          supabaseResponse.cookies.getAll().forEach((cookie) => {
+            newResponse.cookies.set(cookie.name, cookie.value);
+          });
+          newResponse.cookies.set({ name, value: "", ...options });
+          supabaseResponse = newResponse;
         },
       },
     }
