@@ -32,7 +32,11 @@ export async function POST(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      cookies: { getAll: () => [], setAll: () => {} },
+      cookies: {
+        get(name: string) { return undefined; },
+        set(name: string, value: string, options: any) {},
+        remove(name: string, options: any) {}
+      },
       global: {
         headers: { Authorization: authHeader },
       },
