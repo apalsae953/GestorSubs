@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   AreaChart,
   Area,
@@ -14,6 +15,18 @@ import {
 import { motion } from "framer-motion";
 import { formatCurrency } from "@/lib/utils";
 import type { DashboardStats } from "@/types";
+
+function useIsMobile() {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    setMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return mobile;
+}
 
 // ─── Area Chart (gasto mensual) ────────────────────────────────────────────────
 interface SpendingAreaChartProps {
@@ -41,9 +54,10 @@ function CustomTooltip({
 }
 
 export function SpendingAreaChart({ data }: SpendingAreaChartProps) {
+  const isMobile = useIsMobile();
   const currentTotal = data[data.length - 1]?.total ?? 0;
-  const average = data.length > 0 
-    ? data.reduce((acc, d) => acc + d.total, 0) / data.length 
+  const average = data.length > 0
+    ? data.reduce((acc, d) => acc + d.total, 0) / data.length
     : 0;
 
   return (
@@ -51,9 +65,9 @@ export function SpendingAreaChart({ data }: SpendingAreaChartProps) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="glass-card p-6"
+      className="glass-card p-4 sm:p-6"
     >
-      <div className="flex items-center justify-between mb-1">
+      <div className="flex flex-wrap items-start justify-between gap-1 mb-1">
         <h3 className="text-sm font-medium text-noir-400">
           Gasto mensual
         </h3>
@@ -62,12 +76,12 @@ export function SpendingAreaChart({ data }: SpendingAreaChartProps) {
           <span className="text-[10px] text-noir-400 font-medium">Media: {formatCurrency(average)}</span>
         </div>
       </div>
-      <p className="text-2xl font-semibold text-white mb-6">
+      <p className="text-xl sm:text-2xl font-semibold text-white mb-4 sm:mb-6">
         {formatCurrency(currentTotal)}
         <span className="text-sm text-noir-500 font-normal ml-1.5">/ mes</span>
       </p>
       <ResponsiveContainer width="100%" height={140}>
-        <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+        <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: isMobile ? -26 : -20 }}>
           <defs>
             <linearGradient id="violetGradient" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
@@ -76,12 +90,13 @@ export function SpendingAreaChart({ data }: SpendingAreaChartProps) {
           </defs>
           <XAxis
             dataKey="month"
-            tick={{ fill: "#636366", fontSize: 11 }}
+            tick={{ fill: "#636366", fontSize: isMobile ? 10 : 11 }}
             axisLine={false}
             tickLine={false}
+            interval={isMobile ? 1 : 0}
           />
           <YAxis
-            tick={{ fill: "#636366", fontSize: 11 }}
+            tick={{ fill: "#636366", fontSize: isMobile ? 10 : 11 }}
             axisLine={false}
             tickLine={false}
             tickFormatter={(v: number) => `${v}€`}
@@ -115,16 +130,16 @@ export function CategoryDonutChart({ data }: CategoryDonutChartProps) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="glass-card p-6"
+      className="glass-card p-4 sm:p-6"
     >
       <h3 className="text-sm font-medium text-noir-400 mb-1">
         Por categoría
       </h3>
-      <p className="text-2xl font-semibold text-white mb-4">
+      <p className="text-xl sm:text-2xl font-semibold text-white mb-4">
         {data.length} <span className="text-sm text-noir-500 font-normal">categorías</span>
       </p>
 
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-4 sm:gap-6">
         <div className="relative flex-shrink-0">
           <PieChart width={100} height={100}>
             <Pie

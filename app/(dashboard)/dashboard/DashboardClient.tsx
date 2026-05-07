@@ -40,22 +40,22 @@ export default function DashboardClient({ stats, usageLogs }: DashboardClientPro
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between mb-8"
+            className="flex items-center justify-between mb-6 sm:mb-8"
           >
             <div>
-              <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
+              <h1 className="text-xl sm:text-2xl font-semibold text-white">Dashboard</h1>
               <p className="text-sm text-noir-500 mt-0.5">
                 Resumen de tus suscripciones activas
               </p>
             </div>
             <button
               onClick={() => setFormOpen(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-500
+              className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-violet-600 hover:bg-violet-500
                          text-white text-sm font-medium rounded-xl transition-all shadow-glow
                          focus:outline-none focus:ring-2 focus:ring-violet-500/50"
             >
               <Plus className="w-4 h-4" />
-              Añadir suscripción
+              <span className="hidden sm:inline">Añadir suscripción</span>
             </button>
           </motion.div>
 
