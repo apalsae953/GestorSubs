@@ -203,23 +203,51 @@ export default function SubscriptionCard({
       </div>
 
       {/* Last used row */}
-      <div className="flex items-center gap-1.5 pt-3 border-t border-white/5">
-        <Activity className="w-3 h-3 text-noir-600 flex-shrink-0" />
-        {sub.last_used_at ? (
-          <span className={cn(
-            "text-xs",
-            sub.used_this_month ? "text-emerald-400" : "text-noir-500"
-          )}>
-            {sub.used_this_month
-              ? "Usado recientemente"
-              : `Sin usar desde ${formatDate(sub.last_used_at)}`}
-          </span>
-        ) : (
-          <span className="text-xs text-noir-600">Sin registros de uso</span>
-        )}
-        {sub.used_this_month && (
-          <CheckCircle2 className="w-3 h-3 text-emerald-400 ml-auto flex-shrink-0" />
-        )}
+      <div className="flex flex-col gap-2 pt-3 border-t border-white/5">
+        <div className="flex items-center gap-1.5">
+          <Activity className="w-3 h-3 text-noir-600 flex-shrink-0" />
+          {sub.last_used_at ? (
+            <span className={cn(
+              "text-xs",
+              sub.used_this_month ? "text-emerald-400" : "text-noir-500"
+            )}>
+              {sub.used_this_month
+                ? "Usado recientemente"
+                : `Sin usar desde ${formatDate(sub.last_used_at)}`}
+            </span>
+          ) : (
+            <span className="text-xs text-noir-600">Sin registros de uso</span>
+          )}
+          {sub.used_this_month && (
+            <CheckCircle2 className="w-3 h-3 text-emerald-400 ml-auto flex-shrink-0" />
+          )}
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+             <div className="flex flex-col">
+                <span className="text-[10px] text-noir-600 uppercase font-medium">Este mes</span>
+                <span className="text-xs font-semibold text-white">{sub.usage_count_month} {sub.usage_count_month === 1 ? 'día' : 'días'}</span>
+             </div>
+             <div className="w-px h-6 bg-white/5" />
+             <div className="flex flex-col">
+                <span className="text-[10px] text-noir-600 uppercase font-medium">Total</span>
+                <span className="text-xs font-semibold text-noir-300">{sub.usage_count} {sub.usage_count === 1 ? 'uso' : 'usos'}</span>
+             </div>
+          </div>
+          
+          <button
+            onClick={(e) => { e.stopPropagation(); handleToggleUsed(); }}
+            className={cn(
+              "text-[10px] font-bold px-2 py-1 rounded-lg transition-all border",
+              sub.used_this_month 
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                : "bg-violet-500/10 border-violet-500/20 text-violet-400 hover:bg-violet-500/20"
+            )}
+          >
+            {sub.used_this_month ? "REGISTRADO" : "REGISTRAR USO"}
+          </button>
+        </div>
       </div>
     </motion.div>
   );

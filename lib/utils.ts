@@ -69,22 +69,8 @@ export function getBillingUrgency(
   return "normal";
 }
 
-// Optimization algorithm: flag if not used in 30 days and price >= threshold
-export function shouldCancelSuggestion(
-  sub: SubscriptionWithCategory,
-  minMonthlyPrice: number = 5
-): boolean {
-  if (sub.used_this_month) return false;
-  if (sub.monthly_cost < minMonthlyPrice) return false;
-
-  if (!sub.last_used_at) return true;
-
-  const daysSinceUse = differenceInDays(
-    new Date(),
-    new Date(sub.last_used_at)
-  );
-  return daysSinceUse >= 30;
-}
+// Re-export the new graduated warning system for backward compat
+export { shouldCancelSuggestion } from "@/lib/usage-warnings";
 
 export function getLogoUrl(name: string, url?: string | null): string {
   if (url) return url;

@@ -41,6 +41,11 @@ function CustomTooltip({
 }
 
 export function SpendingAreaChart({ data }: SpendingAreaChartProps) {
+  const currentTotal = data[data.length - 1]?.total ?? 0;
+  const average = data.length > 0 
+    ? data.reduce((acc, d) => acc + d.total, 0) / data.length 
+    : 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -48,11 +53,17 @@ export function SpendingAreaChart({ data }: SpendingAreaChartProps) {
       transition={{ delay: 0.2 }}
       className="glass-card p-6"
     >
-      <h3 className="text-sm font-medium text-noir-400 mb-1">
-        Gasto mensual
-      </h3>
+      <div className="flex items-center justify-between mb-1">
+        <h3 className="text-sm font-medium text-noir-400">
+          Gasto mensual
+        </h3>
+        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-noir-800 border border-white/5">
+          <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
+          <span className="text-[10px] text-noir-400 font-medium">Media: {formatCurrency(average)}</span>
+        </div>
+      </div>
       <p className="text-2xl font-semibold text-white mb-6">
-        {formatCurrency(data[data.length - 1]?.total ?? 0)}
+        {formatCurrency(currentTotal)}
         <span className="text-sm text-noir-500 font-normal ml-1.5">/ mes</span>
       </p>
       <ResponsiveContainer width="100%" height={140}>

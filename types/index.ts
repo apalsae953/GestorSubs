@@ -35,6 +35,8 @@ export interface SubscriptionWithCategory extends Subscription {
   category_name: string | null;
   category_color: string | null;
   category_icon: string | null;
+  usage_count: number;
+  usage_count_month: number;
 }
 
 export interface Profile {

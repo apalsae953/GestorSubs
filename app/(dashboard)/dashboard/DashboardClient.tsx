@@ -110,6 +110,7 @@ export default function DashboardClient({ stats }: DashboardClientProps) {
       <AddSubscriptionForm
         open={formOpen}
         onClose={closeForm}
+        editId={editSub?.id ?? null}
         initialValues={
           editSub
             ? {

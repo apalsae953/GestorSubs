@@ -162,6 +162,7 @@ export default function SubscriptionsClient({
           setFormOpen(false);
           setEditSub(null);
         }}
+        editId={editSub?.id ?? null}
         initialValues={
           editSub
             ? {

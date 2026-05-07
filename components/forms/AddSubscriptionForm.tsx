@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, Plus, Zap, Search, Check } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { toast } from "sonner";
-import { createSubscription } from "@/lib/actions/subscriptions";
+import { createSubscription, updateSubscription } from "@/lib/actions/subscriptions";
 import { getCategories } from "@/lib/actions/subscriptions";
 import {
   subscriptionSchema,
@@ -21,6 +21,7 @@ import { addDays, format } from "date-fns";
 interface AddSubscriptionFormProps {
   open: boolean;
   onClose: () => void;
+  editId?: string | null;
   initialValues?: Partial<SubscriptionFormValues>;
 }
 
@@ -40,6 +41,7 @@ const CURRENCY_OPTIONS = [
 export default function AddSubscriptionForm({
   open,
   onClose,
+  editId,
   initialValues,
 }: AddSubscriptionFormProps) {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -76,7 +78,11 @@ export default function AddSubscriptionForm({
 
   useEffect(() => {
     if (initialValues) {
-      reset({ ...initialValues, next_billing_date: defaultNextBilling });
+      // Preserve the original next_billing_date when editing
+      reset({
+        next_billing_date: defaultNextBilling,
+        ...initialValues,
+      });
       setTab("manual");
     }
   }, [initialValues]);
@@ -90,27 +96,47 @@ export default function AddSubscriptionForm({
     }
   }, [open]);
 
+  const isEditing = !!editId;
+
   async function onSubmit(data: SubscriptionFormValues) {
     setLoading(true);
     try {
-      await createSubscription({
-        name: data.name,
-        description: data.description || null,
-        url: data.url || null,
-        logo_url: data.logo_url || null,
-        price: data.price,
-        currency: data.currency,
-        billing_cycle: data.billing_cycle,
-        next_billing_date: data.next_billing_date,
-        start_date: format(new Date(), "yyyy-MM-dd"),
-        category_id: data.category_id || null,
-        status: "active",
-        last_used_at: null,
-        used_this_month: data.used_this_month,
-        notify_days_before: data.notify_days_before,
-        source: "manual",
-      });
-      toast.success(`${data.name} añadida correctamente`);
+      if (isEditing) {
+        // Update existing subscription
+        await updateSubscription(editId!, {
+          name: data.name,
+          description: data.description || null,
+          url: data.url || null,
+          price: data.price,
+          currency: data.currency,
+          billing_cycle: data.billing_cycle,
+          next_billing_date: data.next_billing_date,
+          category_id: data.category_id || null,
+          used_this_month: data.used_this_month,
+          notify_days_before: data.notify_days_before,
+        });
+        toast.success(`${data.name} actualizada correctamente`);
+      } else {
+        // Create new subscription
+        await createSubscription({
+          name: data.name,
+          description: data.description || null,
+          url: data.url || null,
+          logo_url: data.logo_url || null,
+          price: data.price,
+          currency: data.currency,
+          billing_cycle: data.billing_cycle,
+          next_billing_date: data.next_billing_date,
+          start_date: format(new Date(), "yyyy-MM-dd"),
+          category_id: data.category_id || null,
+          status: "active",
+          last_used_at: null,
+          used_this_month: data.used_this_month,
+          notify_days_before: data.notify_days_before,
+          source: "manual",
+        });
+        toast.success(`${data.name} añadida correctamente`);
+      }
       reset();
       onClose();
     } catch {
@@ -168,8 +194,6 @@ export default function AddSubscriptionForm({
     const matchSearch = s.name.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
-
-  const isEditing = !!initialValues;
 
   return (
     <AnimatePresence>
@@ -471,7 +495,11 @@ export default function AddSubscriptionForm({
                     ) : (
                       <Check className="w-4 h-4" />
                     )}
-                    {loading ? "Guardando…" : "Guardar suscripción"}
+                    {loading
+                      ? "Guardando…"
+                      : isEditing
+                      ? "Guardar cambios"
+                      : "Guardar suscripción"}
                   </button>
                 </div>
               </>
