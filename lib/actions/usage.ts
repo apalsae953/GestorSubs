@@ -36,6 +36,7 @@ export async function logUsageManual(subId: string): Promise<{ ok: boolean; alre
 
   revalidatePath("/checkin");
   revalidatePath("/dashboard");
+  revalidatePath("/subscriptions");
   return { ok: true, alreadyLogged: !!existing };
 }
 
@@ -59,4 +60,5 @@ export async function unlogUsageManual(subId: string) {
 
   revalidatePath("/checkin");
   revalidatePath("/dashboard");
+  revalidatePath("/subscriptions");
 }

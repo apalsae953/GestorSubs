@@ -139,8 +139,10 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     totalMonthly,
     totalYearly,
     activeCount: active.length,
-    mostExpensive: active[0] ?? null,
-    topThree: active.slice(0, 3),
+    mostExpensive: [...active].sort((a, b) => b.monthly_cost - a.monthly_cost)[0] ?? null,
+    topThree: [...active]
+      .sort((a, b) => b.monthly_cost - a.monthly_cost)
+      .slice(0, 3),
     recentlyAdded: [...subs]
       .sort(
         (a, b) =>

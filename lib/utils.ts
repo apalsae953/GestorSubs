@@ -1,8 +1,32 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { format, differenceInDays } from "date-fns";
+import { format, differenceInDays, addWeeks, addMonths, addQuarters, addYears, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import type { BillingCycle, SubscriptionWithCategory } from "@/types";
+
+export function getNextBillingDate(currentDate: string, cycle: BillingCycle): string {
+  const date = parseISO(currentDate);
+  let nextDate: Date;
+
+  switch (cycle) {
+    case "weekly":
+      nextDate = addWeeks(date, 1);
+      break;
+    case "monthly":
+      nextDate = addMonths(date, 1);
+      break;
+    case "quarterly":
+      nextDate = addQuarters(date, 1);
+      break;
+    case "yearly":
+      nextDate = addYears(date, 1);
+      break;
+    default:
+      nextDate = addMonths(date, 1);
+  }
+
+  return format(nextDate, "yyyy-MM-dd");
+}
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

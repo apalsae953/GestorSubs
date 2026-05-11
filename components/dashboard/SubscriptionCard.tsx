@@ -25,7 +25,8 @@ import {
   cycleLabel,
   generateInitials,
 } from "@/lib/utils";
-import { deleteSubscription, toggleUsedThisMonth, updateSubscriptionStatus } from "@/lib/actions/subscriptions";
+import { deleteSubscription, updateSubscriptionStatus } from "@/lib/actions/subscriptions";
+import { logUsageManual, unlogUsageManual } from "@/lib/actions/usage";
 import type { SubscriptionWithCategory } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +43,7 @@ export default function SubscriptionCard({
   const [logoError, setLogoError] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
+  const [usageLoading, setUsageLoading] = useState(false);
 
   const urgency = getBillingUrgency(sub.next_billing_date);
   const days = daysUntil(sub.next_billing_date);
@@ -61,12 +63,25 @@ export default function SubscriptionCard({
   }
 
   async function handleToggleUsed() {
-    await toggleUsedThisMonth(sub.id, !sub.used_this_month);
-    toast.success(
-      sub.used_this_month
-        ? "Marcada como no usada este mes"
-        : "Marcada como usada este mes"
-    );
+    if (usageLoading) return;
+    setUsageLoading(true);
+    try {
+      if (sub.used_this_month) {
+        await unlogUsageManual(sub.id);
+        toast.success("Uso desmarcado");
+      } else {
+        const res = await logUsageManual(sub.id);
+        if (res?.alreadyLogged) {
+          toast.info(`${sub.name} ya estaba registrada hoy`);
+        } else {
+          toast.success("Uso registrado");
+        }
+      }
+    } catch {
+      toast.error("Error al actualizar uso");
+    } finally {
+      setUsageLoading(false);
+    }
   }
 
   async function handleStatusChange(status: "active" | "paused" | "cancelled") {
@@ -291,12 +306,16 @@ export default function SubscriptionCard({
           <button
             onClick={(e) => { e.stopPropagation(); handleToggleUsed(); }}
             className={cn(
-              "text-[10px] font-bold px-2 py-1 rounded-lg transition-all border",
+              "text-[10px] font-bold px-2 py-1 rounded-lg transition-all border flex items-center gap-1.5",
               sub.used_this_month 
                 ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
-                : "bg-violet-500/10 border-violet-500/20 text-violet-400 hover:bg-violet-500/20"
+                : "bg-violet-500/10 border-violet-500/20 text-violet-400 hover:bg-violet-500/20",
+              usageLoading && "opacity-50 cursor-wait"
             )}
           >
+            {usageLoading ? (
+              <div className="w-2.5 h-2.5 border border-current border-t-transparent rounded-full animate-spin" />
+            ) : null}
             {sub.used_this_month ? "REGISTRADO" : "REGISTRAR USO"}
           </button>
         </div>

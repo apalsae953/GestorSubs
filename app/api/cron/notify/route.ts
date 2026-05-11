@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
-import { differenceInDays } from "date-fns";
+import { differenceInDays, isBefore, parseISO } from "date-fns";
+import { getNextBillingDate } from "@/lib/utils";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -132,11 +133,11 @@ export async function GET(req: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://subscout.vercel.app";
 
-  // Fetch all active subscriptions + their user profiles
+  // Fetch all subscriptions (active and paused) to advance dates
   const { data: subs, error } = await supabase
     .from("subscriptions")
     .select("*")
-    .eq("status", "active");
+    .in("status", ["active", "paused"]);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -179,9 +180,37 @@ export async function GET(req: NextRequest) {
     if (alreadySentToday.has(sub.id)) { skipped++; continue; }
 
     const daysLeft = daysUntilLocal(sub.next_billing_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    // Only notify if within the window [0, notify_days_before]
-    if (daysLeft < 0 || daysLeft > sub.notify_days_before) { skipped++; continue; }
+    // 1. Advance date if it has passed
+    if (daysLeft < 0) {
+      let nextDate = sub.next_billing_date;
+      // Advance until it's today or in the future
+      while (isBefore(parseISO(nextDate), today)) {
+        nextDate = getNextBillingDate(nextDate, sub.billing_cycle);
+      }
+      
+      await supabase
+        .from("subscriptions")
+        .update({ 
+          next_billing_date: nextDate,
+          used_this_month: false // Reset usage for the new cycle
+        })
+        .eq("id", sub.id);
+      
+      // Update sub object for the rest of the loop
+      sub.next_billing_date = nextDate;
+      sub.used_this_month = false;
+      skipped++;
+      continue;
+    }
+
+    // 2. Only notify if active
+    if (sub.status !== "active") { skipped++; continue; }
+
+    // 3. Only notify if within the window [0, notify_days_before]
+    if (daysLeft > sub.notify_days_before) { skipped++; continue; }
 
     const subject = buildSubjectLine(sub.name, daysLeft, sub.price, sub.currency);
     const html = buildEmailHtml(sub, daysLeft, appUrl);
