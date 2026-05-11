@@ -34,15 +34,15 @@ export async function getSubscriptions(): Promise<SubscriptionWithCategory[]> {
     return [];
   }
 
+  const now = new Date();
+  const startOfMonthDate = startOfMonth(now);
+
   // Fetch usage counts for each sub (only current month for efficiency)
   const { data: usageLogs } = await supabase
     .from("usage_logs")
     .select("sub_id, used_at")
     .eq("user_id", user.id)
     .gte("used_at", startOfMonthDate.toISOString());
-
-  const now = new Date();
-  const startOfMonthDate = startOfMonth(now);
 
   const usageStats = (usageLogs ?? []).reduce((acc, log) => {
     const id = log.sub_id;
