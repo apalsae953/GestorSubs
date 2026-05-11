@@ -68,6 +68,7 @@ export interface DashboardStats {
   optimizationCandidates: SubscriptionWithCategory[];
   spendingByCategory: { name: string; value: number; color: string }[];
   monthlyHistory: { month: string; total: number }[];
+  usedTodayCount: number;
   allSubscriptions: SubscriptionWithCategory[];
 }
 

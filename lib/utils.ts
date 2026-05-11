@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { format, differenceInDays, addWeeks, addMonths, addQuarters, addYears, parseISO } from "date-fns";
+import { format, differenceInDays, addWeeks, addMonths, addQuarters, addYears, parseISO, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
 import type { BillingCycle, SubscriptionWithCategory } from "@/types";
 
@@ -26,6 +26,41 @@ export function getNextBillingDate(currentDate: string, cycle: BillingCycle): st
   }
 
   return format(nextDate, "yyyy-MM-dd");
+}
+
+export function isBillingDay(date: Date, sub: { next_billing_date: string, billing_cycle: BillingCycle }): boolean {
+  const billingDate = parseISO(sub.next_billing_date);
+  const targetDate = new Date(date);
+  targetDate.setHours(0, 0, 0, 0);
+  billingDate.setHours(0, 0, 0, 0);
+
+  // If it's the exact next billing date, yes
+  if (isSameDay(billingDate, targetDate)) return true;
+
+  // Otherwise, check if it's a future (or past) recurrence
+  // We check if targetDate is a recurrence of billingDate
+  const diffDays = differenceInDays(targetDate, billingDate);
+  
+  if (sub.billing_cycle === "weekly") {
+    return diffDays % 7 === 0;
+  }
+  
+  if (sub.billing_cycle === "monthly") {
+    // Same day of month (approximate, handling end-of-month is tricky)
+    return targetDate.getDate() === billingDate.getDate();
+  }
+  
+  if (sub.billing_cycle === "quarterly") {
+    return targetDate.getDate() === billingDate.getDate() && 
+           (targetDate.getMonth() - billingDate.getMonth()) % 3 === 0;
+  }
+  
+  if (sub.billing_cycle === "yearly") {
+    return targetDate.getDate() === billingDate.getDate() && 
+           targetDate.getMonth() === billingDate.getMonth();
+  }
+
+  return false;
 }
 
 export function cn(...inputs: ClassValue[]) {

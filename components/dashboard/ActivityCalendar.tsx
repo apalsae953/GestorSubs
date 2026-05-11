@@ -14,7 +14,7 @@ import {
 } from "date-fns";
 import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, CreditCard } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, isBillingDay } from "@/lib/utils";
 import { daysUntil } from "@/lib/utils";
 import type { UsageLog, SubscriptionWithCategory } from "@/types";
 
@@ -45,7 +45,7 @@ export default function ActivityCalendar({ usageLogs, subscriptions }: ActivityC
 
   function billingsOnDay(date: Date) {
     return subscriptions.filter(
-      (s) => s.status === "active" && isSameDay(new Date(s.next_billing_date), date)
+      (s) => s.status === "active" && isBillingDay(date, s)
     );
   }
 

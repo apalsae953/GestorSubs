@@ -34,24 +34,23 @@ export async function getSubscriptions(): Promise<SubscriptionWithCategory[]> {
     return [];
   }
 
-  // Fetch usage counts for each sub
+  // Fetch usage counts for each sub (only current month for efficiency)
   const { data: usageLogs } = await supabase
     .from("usage_logs")
     .select("sub_id, used_at")
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .gte("used_at", startOfMonthDate.toISOString());
 
   const now = new Date();
   const startOfMonthDate = startOfMonth(now);
 
   const usageStats = (usageLogs ?? []).reduce((acc, log) => {
     const id = log.sub_id;
-    if (!acc[id]) acc[id] = { total: 0, month: 0 };
-    acc[id].total++;
-    if (new Date(log.used_at) >= startOfMonthDate) {
-      acc[id].month++;
-    }
+    const date = log.used_at.split('T')[0];
+    if (!acc[id]) acc[id] = new Set<string>();
+    acc[id].add(date);
     return acc;
-  }, {} as Record<string, { total: number; month: number }>);
+  }, {} as Record<string, Set<string>>);
 
   return (subs as any[]).map(s => {
     // Manual calculation of monthly cost (previously done in view)
@@ -60,14 +59,16 @@ export async function getSubscriptions(): Promise<SubscriptionWithCategory[]> {
     if (s.billing_cycle === 'quarterly') monthly_cost = s.price / 3;
     if (s.billing_cycle === 'yearly') monthly_cost = s.price / 12;
 
+    const daysUsed = usageStats[s.id]?.size ?? 0;
+
     return {
       ...s,
       monthly_cost: Math.round(monthly_cost * 100) / 100,
       category_name: s.category?.name ?? "Otro",
       category_color: s.category?.color ?? "#6b7280",
       category_icon: s.category?.icon ?? "MoreHorizontal",
-      usage_count: usageStats[s.id]?.total ?? 0,
-      usage_count_month: usageStats[s.id]?.month ?? 0,
+      usage_count: daysUsed, // Count unique days in current month
+      usage_count_month: daysUsed,
     };
   });
 }
@@ -88,6 +89,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     optimizationCandidates: [],
     spendingByCategory: [],
     monthlyHistory: [],
+    usedTodayCount: 0,
     allSubscriptions: [],
   };
 
@@ -135,6 +137,8 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     };
   });
 
+  const usedTodayCount = active.filter(s => s.used_this_month).length;
+
   return {
     totalMonthly,
     totalYearly,
@@ -152,6 +156,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     optimizationCandidates,
     spendingByCategory,
     monthlyHistory,
+    usedTodayCount,
     allSubscriptions: subs,
   };
 }

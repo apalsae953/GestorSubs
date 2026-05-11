@@ -15,8 +15,8 @@ import {
 } from "@/lib/validations/subscription";
 import { POPULAR_SERVICES, SERVICE_CATEGORIES } from "@/lib/popular-services";
 import type { Category } from "@/types";
-import { cn } from "@/lib/utils";
-import { addDays, format } from "date-fns";
+import { cn, getNextBillingDate } from "@/lib/utils";
+import { addDays, format, isBefore, parseISO } from "date-fns";
 
 interface AddSubscriptionFormProps {
   open: boolean;
@@ -78,10 +78,21 @@ export default function AddSubscriptionForm({
 
   useEffect(() => {
     if (initialValues) {
-      // Preserve the original next_billing_date when editing
+      let nextDate = initialValues.next_billing_date;
+      
+      // If editing and the date is in the past, project the next one
+      if (nextDate && initialValues.billing_cycle) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        while (isBefore(parseISO(nextDate), today)) {
+          nextDate = getNextBillingDate(nextDate, initialValues.billing_cycle);
+        }
+      }
+
       reset({
-        next_billing_date: defaultNextBilling,
         ...initialValues,
+        next_billing_date: nextDate,
       });
       setTab("manual");
     }
