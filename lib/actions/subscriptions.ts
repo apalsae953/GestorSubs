@@ -1,16 +1,28 @@
 "use server";
 
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  eachDayOfInterval,
+  isSameDay,
+  isToday,
+  addMonths,
+  subMonths,
+  getDay,
+  parseISO,
+  isBefore,
+} from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import type {
   SubscriptionWithCategory,
   DashboardStats,
   SpendingSnapshot,
+  UsageLog,
 } from "@/types";
-import { toMonthly } from "@/lib/utils";
+import { toMonthly, getNextBillingDate } from "@/lib/utils";
 import { getUsageWarning } from "@/lib/usage-warnings";
-import { format, subMonths, startOfMonth, endOfMonth } from "date-fns";
-import type { UsageLog } from "@/types";
 
 export async function getSubscriptions(): Promise<SubscriptionWithCategory[]> {
   const supabase = await createClient();
@@ -53,7 +65,17 @@ export async function getSubscriptions(): Promise<SubscriptionWithCategory[]> {
   }, {} as Record<string, Set<string>>);
 
   return (subs as any[]).map(s => {
-    // Manual calculation of monthly cost (previously done in view)
+    // 1. Calculate the real next billing date for display
+    let nextDate = s.next_billing_date;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // If the renewal date has passed, project the next one
+    while (isBefore(parseISO(nextDate), today)) {
+      nextDate = getNextBillingDate(nextDate, s.billing_cycle);
+    }
+
+    // 2. Manual calculation of monthly cost
     let monthly_cost = s.price;
     if (s.billing_cycle === 'weekly') monthly_cost = s.price * 4.33;
     if (s.billing_cycle === 'quarterly') monthly_cost = s.price / 3;
@@ -63,11 +85,12 @@ export async function getSubscriptions(): Promise<SubscriptionWithCategory[]> {
 
     return {
       ...s,
+      next_billing_date: nextDate, // Show the upcoming date
       monthly_cost: Math.round(monthly_cost * 100) / 100,
       category_name: s.category?.name ?? "Otro",
       category_color: s.category?.color ?? "#6b7280",
       category_icon: s.category?.icon ?? "MoreHorizontal",
-      usage_count: daysUsed, // Count unique days in current month
+      usage_count: daysUsed,
       usage_count_month: daysUsed,
     };
   });
@@ -157,7 +180,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     spendingByCategory,
     monthlyHistory,
     usedTodayCount,
-    allSubscriptions: subs,
+    allSubscriptions: subs.sort((a, b) => parseISO(a.next_billing_date).getTime() - parseISO(b.next_billing_date).getTime()),
   };
 }
 

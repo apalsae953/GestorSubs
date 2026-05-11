@@ -13,19 +13,22 @@ import { createServerClient } from "@supabase/ssr";
 
 function extractDomain(url: string): string {
   try {
-    const { hostname } = new URL(url);
-    // Remove www. prefix
-    return hostname.replace(/^www\./, "");
-  } catch {
-    return url.toLowerCase().replace(/^www\./, "");
+    return url.toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
   }
+}
+
+function withCors(res: NextResponse) {
+  res.headers.set("Access-Control-Allow-Origin", "*");
+  res.headers.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  return res;
 }
 
 export async function POST(req: NextRequest) {
   // Auth via Supabase JWT
   const authHeader = req.headers.get("authorization") ?? "";
   if (!authHeader.startsWith("Bearer ")) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return withCors(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
   }
 
   const supabase = createServerClient(
@@ -45,13 +48,13 @@ export async function POST(req: NextRequest) {
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return withCors(NextResponse.json({ error: "Unauthorized" }, { status: 401 }));
   }
 
   const body = await req.json().catch(() => ({}));
   const { url } = body as { url?: string };
   if (!url) {
-    return NextResponse.json({ error: "Missing url" }, { status: 400 });
+    return withCors(NextResponse.json({ error: "Missing url" }, { status: 400 }));
   }
 
   const visitedDomain = extractDomain(url);
@@ -64,7 +67,7 @@ export async function POST(req: NextRequest) {
     .eq("status", "active");
 
   if (!subscriptions?.length) {
-    return NextResponse.json({ matched: false, reason: "No active subscriptions" });
+    return withCors(NextResponse.json({ matched: false, reason: "No active subscriptions" }));
   }
 
   // Match visited domain against subscription URLs
@@ -75,7 +78,7 @@ export async function POST(req: NextRequest) {
   });
 
   if (!matched) {
-    return NextResponse.json({ matched: false, domain: visitedDomain });
+    return withCors(NextResponse.json({ matched: false, domain: visitedDomain }));
   }
 
   const today = new Date().toISOString().split("T")[0];
@@ -106,11 +109,11 @@ export async function POST(req: NextRequest) {
     })
     .eq("id", matched.id);
 
-  return NextResponse.json({
+  return withCors(NextResponse.json({
     matched: true,
     subscription: matched.name,
     alreadyLoggedToday: !!existing,
-  });
+  }));
 }
 
 // CORS for Chrome Extension

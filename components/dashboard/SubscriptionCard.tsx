@@ -265,7 +265,7 @@ export default function SubscriptionCard({
           )}
         >
           <Calendar className="w-3 h-3" />
-          {days <= 0 ? "Hoy" : days === 1 ? "Mañana" : `${days}d`}
+          {days < 0 ? `Hace ${Math.abs(days)}d` : days === 0 ? "Hoy" : days === 1 ? "Mañana" : `en ${days}d`}
         </div>
       </div>
 

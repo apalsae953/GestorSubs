@@ -87,10 +87,12 @@ export function formatMonth(dateStr: string): string {
 }
 
 export function daysUntil(dateStr: string): number {
-  const [y, m, d] = dateStr.split("-").map(Number);
-  const target = new Date(y, m - 1, d);
+  if (!dateStr) return 0;
+  const target = parseISO(dateStr);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  target.setHours(0, 0, 0, 0);
+  
   return differenceInDays(target, today);
 }
 

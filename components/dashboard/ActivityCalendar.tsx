@@ -11,6 +11,7 @@ import {
   addMonths,
   subMonths,
   getDay,
+  parseISO,
 } from "date-fns";
 import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, CreditCard } from "lucide-react";
@@ -53,7 +54,7 @@ export default function ActivityCalendar({ usageLogs, subscriptions }: ActivityC
     .filter((s) => s.status === "active")
     .sort(
       (a, b) =>
-        new Date(a.next_billing_date).getTime() - new Date(b.next_billing_date).getTime()
+        parseISO(a.next_billing_date).getTime() - parseISO(b.next_billing_date).getTime()
     )
     .slice(0, 6);
 
@@ -168,7 +169,7 @@ export default function ActivityCalendar({ usageLogs, subscriptions }: ActivityC
                       d <= 0 ? "text-rose-400" : d <= 3 ? "text-rose-400" : d <= 7 ? "text-amber-400" : "text-noir-500"
                     )}
                   >
-                    {d <= 0 ? "Hoy" : d === 1 ? "Mañana" : `${d}d`}
+                    {d < 0 ? `Hace ${Math.abs(d)}d` : d === 0 ? "Hoy" : d === 1 ? "Mañana" : `en ${d}d`}
                   </span>
                 </div>
               );
