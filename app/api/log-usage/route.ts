@@ -12,9 +12,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 function extractDomain(url: string): string {
-  try {
-    return url.toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
-  }
+  return url.toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
 }
 
 function withCors(res: NextResponse) {
