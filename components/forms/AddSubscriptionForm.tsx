@@ -225,7 +225,7 @@ export default function AddSubscriptionForm({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed right-0 top-0 h-full w-full max-w-md bg-noir-900 border-l border-white/5 z-50 flex flex-col shadow-2xl"
+            className="fixed right-0 top-0 h-[100dvh] w-full max-w-md bg-noir-900 border-l border-white/5 z-50 flex flex-col shadow-2xl"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-white/5">
@@ -495,7 +495,7 @@ export default function AddSubscriptionForm({
                   </Field>
                 </form>
 
-                <div className="px-6 py-5 border-t border-white/5">
+                <div className="px-6 pt-5 pb-5 border-t border-white/5" style={{ paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))" }}>
                   <button
                     type="button"
                     onClick={handleSubmit(onSubmit)}

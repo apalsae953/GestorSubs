@@ -15,11 +15,12 @@ import PopularServicesModal from "@/components/dashboard/PopularServicesModal";
 interface CheckinClientProps {
   subscriptions: SubscriptionWithCategory[];
   today: string;
+  todayUsedIds: string[];
 }
 
-export default function CheckinClient({ subscriptions, today }: CheckinClientProps) {
+export default function CheckinClient({ subscriptions, today, todayUsedIds }: CheckinClientProps) {
   const [used, setUsed] = useState<Set<string>>(
-    () => new Set(subscriptions.filter((s) => s.used_this_month).map((s) => s.id))
+    () => new Set(todayUsedIds)
   );
   const [loading, setLoading] = useState<Set<string>>(new Set());
   const [formOpen, setFormOpen] = useState(false);

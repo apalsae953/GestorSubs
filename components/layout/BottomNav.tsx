@@ -23,7 +23,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex border-t border-white/5 bg-noir-900/95 backdrop-blur-sm">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 flex border-t border-white/5 bg-noir-900/95 backdrop-blur-sm">
       {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
         const active =
           href === "/dashboard"
